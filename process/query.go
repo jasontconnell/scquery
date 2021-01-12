@@ -70,23 +70,29 @@ func RunQuery(connstr string, templateId uuid.UUID, queryFields []FieldQuery, re
 			idm[v.FieldId] = v
 		}
 		res := ItemResult{Id: item.GetId(), Fields: []ItemFieldResult{}}
+
+		add := true
 		for _, v := range fieldIds {
 			fvk := idm[v]
 			fv, ok := allvals[fvk]
 			if !ok {
-				continue
+				add = false
+				break
 			}
 
 			result, err := fields.Process(imap, tmap, fv)
 			if err != nil {
 				log.Println("error for field", v, "in item", item.GetId(), err)
-				continue
+				add = false
+				break
 			}
 
 			res.Fields = append(res.Fields, ItemFieldResult{Name: fv.GetName(), Value: result.Value})
 		}
 
-		results = append(results, res)
+		if add {
+			results = append(results, res)
+		}
 	}
 
 	return results, nil

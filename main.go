@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"sort"
 	"strings"
 	"time"
 
@@ -18,7 +19,13 @@ func main() {
 	path := flag.String("path", "", "path to search or include")
 	flds := flag.String("fields", "", "csv of fields and values, like Field=Value to search")
 	output := flag.String("output", "", "csv of fields to output per line")
+	order := flag.String("order", "", "order by field")
 	flag.Parse()
+
+	if *tid == "" {
+		flag.PrintDefaults()
+		return
+	}
 
 	start := time.Now()
 	cfg := conf.LoadConfig(*c)
@@ -38,6 +45,28 @@ func main() {
 	res, err := process.RunQuery(cfg.ConnectionString, templateId, nil, resultFields)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if *order != "" && len(res) > 0 {
+		orderIndex := -1
+		fst := res[0]
+
+		for i, f := range fst.Fields {
+			if f.Name == *order {
+				orderIndex = i
+				break
+			}
+		}
+
+		log.Println(*order, "order index", orderIndex, fst.Fields[orderIndex])
+
+		sort.Slice(res, func(i, j int) bool {
+			iv, jv := res[i].Id.String(), res[j].Id.String()
+			if orderIndex != -1 && orderIndex < len(res[i].Fields) {
+				iv, jv = res[i].Fields[orderIndex].Value, res[j].Fields[orderIndex].Value
+			}
+			return iv < jv
+		})
 	}
 
 	for _, r := range res {
