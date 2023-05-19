@@ -10,8 +10,9 @@ const (
 )
 
 type FieldQuery struct {
-	Name  string
-	Value string
+	FieldName string
+	Op        string
+	Value     string
 }
 
 type FieldResult struct {

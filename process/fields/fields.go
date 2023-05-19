@@ -22,6 +22,8 @@ func init() {
 	fieldProcessorMap["General Link"] = generalLinkProcessor{}
 	fieldProcessorMap["Single-Line Text"] = textProcessor{}
 	fieldProcessorMap["Multi-Line Text"] = textProcessor{}
+	fieldProcessorMap["text"] = textProcessor{}
+	fieldProcessorMap["Treelist"] = textProcessor{}
 }
 
 func Process(m data.ItemMap, tm data.TemplateMap, fv data.FieldValueNode) (FieldProcessResult, error) {
